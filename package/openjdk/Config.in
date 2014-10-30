@@ -1,0 +1,8 @@
+config BR2_PACKAGE_OPENJDK
+	bool "openjdk"
+	select BR2_NEEDS_HOST_JAR
+	select BR2_NEEDS_HOST_JAVAC
+	help
+	  OpenJDK JRE runtime.
+
+	  http://openjdk.java.net/

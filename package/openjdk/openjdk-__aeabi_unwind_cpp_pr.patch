@@ -1,0 +1,27 @@
+Index: openjdk-jdk9-b36/jdk/src/jdk.runtime/share/native/common-unpack/utils.cpp
+===================================================================
+--- openjdk-jdk9-b36.orig/jdk/src/jdk.runtime/share/native/common-unpack/utils.cpp	2014-10-16 23:14:57.000000000 +0200
++++ openjdk-jdk9-b36/jdk/src/jdk.runtime/share/native/common-unpack/utils.cpp	2014-10-30 13:24:14.470601910 +0100
+@@ -46,6 +46,22 @@
+ 
+ #include "unpack.h"
+ 
++extern "C"
++{
++// Dummy functions to avoid linker complaints
++void __aeabi_unwind_cpp_pr0(void)
++{
++};
++void __aeabi_unwind_cpp_pr1(void)
++{
++};
++void __aeabi_unwind_cpp_pr2(void)
++{
++};
++}
++
++
++
+ void* must_malloc(size_t size) {
+   size_t msize = size;
+   #ifdef USE_MTRACE
