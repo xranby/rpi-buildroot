@@ -1,0 +1,15 @@
+Index: openjdk-jdk8u20-b26/common/autoconf/build-aux/config.sub
+===================================================================
+--- openjdk-jdk8u20-b26.orig/common/autoconf/build-aux/config.sub	2014-07-30 12:50:56.000000000 +0200
++++ openjdk-jdk8u20-b26/common/autoconf/build-aux/config.sub	2014-10-29 10:45:52.243048444 +0100
+@@ -481,6 +481,10 @@
+ 		basic_machine=bfin-`echo $basic_machine | sed 's/^[^-]*-//'`
+ 		os=-linux
+ 		;;
++	buildroot-*)
++		basic_machine=bfin-`echo $basic_machine | sed 's/^[^-]*-//'`
++                os=-linux
++                ;;
+ 	c90)
+ 		basic_machine=c90-cray
+ 		os=-unicos

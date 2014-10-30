@@ -1,0 +1,13 @@
+Index: openjdk-jdk9-b36/common/autoconf/flags.m4
+===================================================================
+--- openjdk-jdk9-b36.orig/common/autoconf/flags.m4	2014-10-16 23:14:39.000000000 +0200
++++ openjdk-jdk9-b36/common/autoconf/flags.m4	2014-10-30 11:32:08.333248796 +0100
+@@ -710,7 +710,7 @@
+     if test "x$OPENJDK_TARGET_OS" = xlinux; then
+       # And since we now know that the linker is gnu, then add -z defs, to forbid
+       # undefined symbols in object files.
+-      LDFLAGS_JDK="${LDFLAGS_JDK} -Xlinker -z -Xlinker defs"
++      # LDFLAGS_JDK="${LDFLAGS_JDK} -Xlinker -z -Xlinker defs"
+       case $DEBUG_LEVEL in
+         release )
+           # tell linker to optimize libraries.
