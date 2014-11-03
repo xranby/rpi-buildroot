@@ -29,8 +29,6 @@ OPENJDK_CONF_OPT = \
 	--with-boot-jdk=/home/xranby/images-jdk8/j2sdk-image \
 	--enable-openjdk-only \
 	--with-import-hotspot=$(STAGING_DIR)/hotspot \
-	--disable-zip-debug-info \
-        --disable-debug-symbols \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
         --with-freetype=$(STAGING_DIR)/usr/ \
@@ -99,17 +97,17 @@ define OPENJDK_CONFIGURE_CMDS
 	ln -sf server $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client
 	touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
 	ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
-	cd $(@D); ./configure $(OPENJDK_CONF_OPT) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+	cd $(@D); ./configure $(OPENJDK_CONF_OPT) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
 endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-	make STRIP=$(TARGET_STRIP) BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
+	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/lib/jvm/
-	cp -ar $(@D)/build/*/images/j2* $(TARGET_DIR)/usr/lib/jvm/
+	cp -arf $(@D)/build/*/images/j2* $(TARGET_DIR)/usr/lib/jvm/
 endef
 
 #openjdk configure is not based on automake
