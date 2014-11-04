@@ -14,8 +14,8 @@
 #OPENJDK_PROJECT = jdk8u
 
 OPENJDK_VERSION = jdk9-b36
-OPENJDK_RELEASE = jdk9
-OPENJDK_PROJECT = jdk9
+OPENJDK_RELEASE = m2
+OPENJDK_PROJECT = jigsaw
 
 OPENJDK_DOWNLOAD_SITE = http://hg.openjdk.java.net/$(OPENJDK_PROJECT)/$(OPENJDK_RELEASE)
 
@@ -60,32 +60,32 @@ OPENJDK_LANGTOOLS_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/langtools/archive/$(OPENJD
 OPENJDK_NASHORN_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/nashorn/archive/$(OPENJDK_VERSION).tar.gz
 
 define OPENJDK_DOWNLOAD_CMDS
-	wget -c $(OPENJDK_OPENJDK_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-openjdk-$(OPENJDK_VERSION).tar.gz
-        wget -c $(OPENJDK_CORBA_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-corba-$(OPENJDK_VERSION).tar.gz
-	wget -c $(OPENJDK_JAXP_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-jaxp-$(OPENJDK_VERSION).tar.gz
-	wget -c $(OPENJDK_JAXWS_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-jaxws-$(OPENJDK_VERSION).tar.gz
-	wget -c $(OPENJDK_JDK_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-jdk-$(OPENJDK_VERSION).tar.gz
-	wget -c $(OPENJDK_LANGTOOLS_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-langtools-$(OPENJDK_VERSION).tar.gz
-	wget -c $(OPENJDK_NASHORN_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-nashorn-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_OPENJDK_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-openjdk-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_CORBA_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-corba-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_JAXP_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxp-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_JAXWS_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxws-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_JDK_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jdk-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_LANGTOOLS_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-langtools-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_NASHORN_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-nashorn-$(OPENJDK_VERSION).tar.gz
 endef
 
 OPENJDK_PRE_DOWNLOAD_HOOKS += OPENJDK_DOWNLOAD_CMDS
 
 define OPENJDK_EXTRACT_CMDS
-        tar zxvf $(BR2_DL_DIR)/openjdk-openjdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        mv $(@D)/$(OPENJDK_RELEASE)-$(OPENJDK_VERSION)/* $(@D)
-        tar zxvf $(BR2_DL_DIR)/openjdk-corba-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/corba-$(OPENJDK_VERSION) $(@D)/corba
-	tar zxvf $(BR2_DL_DIR)/openjdk-jaxp-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/jaxp-$(OPENJDK_VERSION) $(@D)/jaxp
-	tar zxvf $(BR2_DL_DIR)/openjdk-jaxws-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/jaxws-$(OPENJDK_VERSION) $(@D)/jaxws
-	tar zxvf $(BR2_DL_DIR)/openjdk-jdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/jdk-$(OPENJDK_VERSION) $(@D)/jdk
-	tar zxvf $(BR2_DL_DIR)/openjdk-langtools-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/langtools-$(OPENJDK_VERSION) $(@D)/langtools
-	tar zxvf $(BR2_DL_DIR)/openjdk-nashorn-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/nashorn-$(OPENJDK_VERSION) $(@D)/nashorn
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-openjdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	mv $(@D)/$(OPENJDK_RELEASE)-$(OPENJDK_VERSION)/* $(@D)
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-corba-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/corba-$(OPENJDK_VERSION) $(@D)/corba
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxp-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/jaxp-$(OPENJDK_VERSION) $(@D)/jaxp
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxws-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/jaxws-$(OPENJDK_VERSION) $(@D)/jaxws
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/jdk-$(OPENJDK_VERSION) $(@D)/jdk
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-langtools-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/langtools-$(OPENJDK_VERSION) $(@D)/langtools
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-nashorn-$(OPENJDK_VERSION).tar.gz -C $(@D)
+	ln -s $(@D)/nashorn-$(OPENJDK_VERSION) $(@D)/nashorn
 	chmod +x $(@D)/configure
 endef
 
@@ -102,7 +102,7 @@ endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
+	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
