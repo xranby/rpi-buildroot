@@ -1,0 +1,24 @@
+Index: openjdk-jdk9-b36/make/common/NativeCompilation.gmk
+===================================================================
+--- openjdk-jdk9-b36.orig/make/common/NativeCompilation.gmk	2014-10-16 23:14:39.000000000 +0200
++++ openjdk-jdk9-b36/make/common/NativeCompilation.gmk	2014-11-03 12:04:46.668697514 +0100
+@@ -380,8 +380,8 @@
+   endif
+ 
+   # Add sys root specific cflags last
+-  $1_EXTRA_CFLAGS += $(SYSROOT_CFLAGS)
+-  $1_EXTRA_CXXFLAGS += $(SYSROOT_CFLAGS)
++  #$1_EXTRA_CFLAGS += $(SYSROOT_CFLAGS)
++  #$1_EXTRA_CXXFLAGS += $(SYSROOT_CFLAGS)
+ 
+   # Now call add_native_source for each source file we are going to compile.
+   $$(foreach p,$$($1_SRCS), \
+@@ -428,7 +428,7 @@
+     $1_EXTRA_LDFLAGS += $(call SET_SHARED_LIBRARY_MAPFILE,$$($1_REAL_MAPFILE))
+   endif
+ 
+-  $1_EXTRA_LDFLAGS += $(SYSROOT_LDFLAGS)
++  #$1_EXTRA_LDFLAGS += $(SYSROOT_LDFLAGS)
+ 
+   # Need to make sure TARGET is first on list
+   $1 := $$($1_TARGET)
