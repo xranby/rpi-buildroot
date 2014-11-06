@@ -17,16 +17,7 @@ OPENJDK_VERSION = jdk9-b36
 OPENJDK_RELEASE = m2
 OPENJDK_PROJECT = jigsaw
 
-OPENJDK_DOWNLOAD_SITE = http://hg.openjdk.java.net/$(OPENJDK_PROJECT)/$(OPENJDK_RELEASE)
-
-OPENJDK_SOURCE =
-OPENJDK_SITE = $(OPENJDK_DOWNLOAD_SITE)
-OPENJDK_SITE_METHOD = wget
-
-OPENJDK_HOTSPOT_ARCH = arm
-
 OPENJDK_CONF_OPT = \
-	--with-boot-jdk=/home/xranby/images-jdk8/j2sdk-image \
 	--enable-openjdk-only \
 	--with-import-hotspot=$(STAGING_DIR)/hotspot \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
@@ -39,11 +30,28 @@ OPENJDK_CONF_OPT = \
 	--with-tools-dir=/home/xranby/rpi-buildroot/output/host \
 	--disable-freetype-bundling \
         --enable-unlimited-crypto
+
+ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
+OPENJDK_CONF_OPT += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
+endif
+
 OPENJDK_MAKE_OPT = all images profiles
 
 OPENJDK_DEPENDENCIES = jamvm alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
 OPENJDK_LICENSE_FILES = COPYING
+
+ifeq ($(BR2_OPENJDK_CUSTOM_LOCAL),y)
+
+OPENJDK_SITE = $(call qstrip,$(BR2_OPENJDK_CUSTOM_LOCAL_PATH))
+OPENJDK_SITE_METHOD = local
+
+else
+
+OPENJDK_DOWNLOAD_SITE = http://hg.openjdk.java.net/$(OPENJDK_PROJECT)/$(OPENJDK_RELEASE)
+OPENJDK_SOURCE =
+OPENJDK_SITE = $(OPENJDK_DOWNLOAD_SITE)
+OPENJDK_SITE_METHOD = wget
 
 # OpenJDK uses a mercurial forest structure
 # thankfully the various forests can be downloaded as individual .tar.gz files using
@@ -86,8 +94,9 @@ define OPENJDK_EXTRACT_CMDS
 	ln -s $(@D)/langtools-$(OPENJDK_VERSION) $(@D)/langtools
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-nashorn-$(OPENJDK_VERSION).tar.gz -C $(@D)
 	ln -s $(@D)/nashorn-$(OPENJDK_VERSION) $(@D)/nashorn
-	chmod +x $(@D)/configure
 endef
+
+endif 
 
 define OPENJDK_CONFIGURE_CMDS
 	mkdir -p $(STAGING_DIR)/hotspot/lib
@@ -97,6 +106,7 @@ define OPENJDK_CONFIGURE_CMDS
 	ln -sf server $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client
 	touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
 	ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
+	chmod +x $(@D)/configure
 	cd $(@D); ./configure $(OPENJDK_CONF_OPT) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
 endef
 
