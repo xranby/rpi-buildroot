@@ -1,0 +1,13 @@
+Index: jamvm-112c35306e5a97ebc3672a5c6c988e9aae06fb47/src/os/linux/os.c
+===================================================================
+--- jamvm-112c35306e5a97ebc3672a5c6c988e9aae06fb47.orig/src/os/linux/os.c
++++ jamvm-112c35306e5a97ebc3672a5c6c988e9aae06fb47/src/os/linux/os.c
+@@ -60,7 +60,7 @@ int nativeAvailableProcessors() {
+ #ifdef __UCLIBC__
+     return 1;
+ #else
+-    return get_nprocs();
++    return sysconf(_SC_NPROCESSORS_ONLN);
+ #endif
+ }
+ 
