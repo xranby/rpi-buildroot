@@ -6,3 +6,28 @@ config BR2_PACKAGE_OPENJDK
 	  OpenJDK JRE runtime.
 
 	  http://openjdk.java.net/
+
+if BR2_PACKAGE_OPENJDK
+
+config BR2_OPENJDK_CUSTOM_LOCAL
+        bool "OpenJDK Local sourcecode directory"
+        help
+          This option allows Buildroot to get the OpenJDK source
+          code from a local directory.
+config BR2_OPENJDK_CUSTOM_LOCAL_PATH
+        string "Path to the local directory"
+        depends on BR2_OPENJDK_CUSTOM_LOCAL
+        help
+          Path to the local directory with the OpenJDK source code.
+config BR2_OPENJDK_CUSTOM_BOOT_JDK
+        bool "OpenJDK Specify a custom boot jdk"
+        help
+	  specifies --with-boot-jdk
+          Boot JDK (used to bootstrap build)
+config BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH
+        string "Path to Boot JDK"
+        depends on BR2_OPENJDK_CUSTOM_BOOT_JDK
+        help
+          Path to the local directory with the OpenJDK source code.
+
+endif
