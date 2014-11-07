@@ -17,19 +17,21 @@ OPENJDK_VERSION = jdk9-b36
 OPENJDK_RELEASE = m2
 OPENJDK_PROJECT = jigsaw
 
+OPENJDK_DEPENDENCIES = freetype cups xlib_libX11 xlib_libXext xlib_libXrender xlib_libXtst xlib_libXt
+
 OPENJDK_CONF_OPT = \
 	--enable-openjdk-only \
 	--with-import-hotspot=$(STAGING_DIR)/hotspot \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
-        --with-freetype=$(STAGING_DIR)/usr/ \
-        --with-debug-level=release \
-        --openjdk-target=$(GNU_TARGET_NAME) \
-        --with-x=$(STAGING_DIR)/usr/include \
+	--with-freetype=$(STAGING_DIR)/usr/ \
+	--with-debug-level=release \
+	--openjdk-target=$(GNU_TARGET_NAME) \
+	--with-x=$(STAGING_DIR)/usr/include \
 	--with-sys-root=$(STAGING_DIR) \
-	--with-tools-dir=/home/xranby/rpi-buildroot/output/host \
-	--disable-freetype-bundling \
-        --enable-unlimited-crypto
+	--with-tools-dir=$(HOST_DIR) \
+	--enable-unlimited-crypto
+
 
 ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPT += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
@@ -107,12 +109,13 @@ define OPENJDK_CONFIGURE_CMDS
 	touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
 	ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
 	chmod +x $(@D)/configure
-	cd $(@D); ./configure $(OPENJDK_CONF_OPT) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+	cd $(@D) && PATH=$(BR_PATH) ./configure $(OPENJDK_CONF_OPT) CC=$(GNU_TARGET_NAME)-gcc LD=$(GNU_TARGET_NAME)-ld
+	fail cd $(@D) && PATH=$(BR_PATH) ./configure $(OPENJDK_CONF_OPT) CC=$(TARGET_CC)
 endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
+	make -C $(@D) $(OPENJDK_MAKE_OPT) CC=$(TARGET_CC)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
