@@ -17,9 +17,13 @@ OPENJDK_VERSION = jdk9-b36
 OPENJDK_RELEASE = m2
 OPENJDK_PROJECT = jigsaw
 
+# TODO make conditional
+# --with-import-hotspot=$(STAGING_DIR)/hotspot \
+
 OPENJDK_CONF_OPT = \
+	--with-jvm-interpreter=cpp \
+	--with-jvm-variants=zero \
 	--enable-openjdk-only \
-	--with-import-hotspot=$(STAGING_DIR)/hotspot \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
         --with-freetype=$(STAGING_DIR)/usr/ \
@@ -27,7 +31,7 @@ OPENJDK_CONF_OPT = \
         --openjdk-target=$(GNU_TARGET_NAME) \
         --with-x=$(STAGING_DIR)/usr/include \
 	--with-sys-root=$(STAGING_DIR) \
-	--with-tools-dir=/home/xranby/rpi-buildroot/output/host \
+	--with-tools-dir=$(HOST_DIR) \
 	--disable-freetype-bundling \
         --enable-unlimited-crypto
 
@@ -35,7 +39,7 @@ ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPT += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
-OPENJDK_MAKE_OPT = all images profiles
+OPENJDK_MAKE_OPT = all images profiles CONF=linux-arm-normal-zero-release
 
 OPENJDK_DEPENDENCIES = jamvm alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
@@ -60,6 +64,7 @@ OPENJDK_SITE_METHOD = wget
 # http://hg.openjdk.java.net/$(OPENJDK_PROJECT)/corba/archive/$(OPENJDK_VERSION).tar.bz2
 # ...
 OPENJDK_OPENJDK_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/archive/$(OPENJDK_VERSION).tar.gz
+OPENJDK_HOTSPOT_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/hotspot/archive/$(OPENJDK_VERSION).tar.gz
 OPENJDK_CORBA_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/corba/archive/$(OPENJDK_VERSION).tar.gz
 OPENJDK_JAXP_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/jaxp/archive/$(OPENJDK_VERSION).tar.gz
 OPENJDK_JAXWS_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/jaxws/archive/$(OPENJDK_VERSION).tar.gz
@@ -69,6 +74,7 @@ OPENJDK_NASHORN_DOWNLOAD = $(OPENJDK_DOWNLOAD_SITE)/nashorn/archive/$(OPENJDK_VE
 
 define OPENJDK_DOWNLOAD_CMDS
 	wget -c $(OPENJDK_OPENJDK_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-openjdk-$(OPENJDK_VERSION).tar.gz
+	wget -c $(OPENJDK_HOTSPOT_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-hotspot-$(OPENJDK_VERSION).tar.gz
 	wget -c $(OPENJDK_CORBA_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-corba-$(OPENJDK_VERSION).tar.gz
 	wget -c $(OPENJDK_JAXP_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxp-$(OPENJDK_VERSION).tar.gz
 	wget -c $(OPENJDK_JAXWS_DOWNLOAD) -O $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxws-$(OPENJDK_VERSION).tar.gz
@@ -82,6 +88,8 @@ OPENJDK_PRE_DOWNLOAD_HOOKS += OPENJDK_DOWNLOAD_CMDS
 define OPENJDK_EXTRACT_CMDS
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-openjdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
 	mv $(@D)/$(OPENJDK_RELEASE)-$(OPENJDK_VERSION)/* $(@D)
+	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-hotspot-$(OPENJDK_VERSION).tar.gz -C $(@D)
+        ln -s $(@D)/hotspot-$(OPENJDK_VERSION) $(@D)/hotspot
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-corba-$(OPENJDK_VERSION).tar.gz -C $(@D)
 	ln -s $(@D)/corba-$(OPENJDK_VERSION) $(@D)/corba
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxp-$(OPENJDK_VERSION).tar.gz -C $(@D)
@@ -117,7 +125,7 @@ endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/lib/jvm/
-	cp -arf $(@D)/build/*/images/j2* $(TARGET_DIR)/usr/lib/jvm/
+	cp -arf $(@D)/build/*/images/j* $(TARGET_DIR)/usr/lib/jvm/
 endef
 
 #openjdk configure is not based on automake

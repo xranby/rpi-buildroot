@@ -1,0 +1,33 @@
+Index: openjdk-jdk9-b36/jdk/make/Import.gmk
+===================================================================
+--- openjdk-jdk9-b36.orig/jdk/make/Import.gmk	2014-11-06 14:26:21.676125373 +0100
++++ openjdk-jdk9-b36/jdk/make/Import.gmk	2014-11-07 15:34:49.776899332 +0100
+@@ -214,7 +214,11 @@
+ 	    $(JDK_OUTPUTDIR)/modules/jdk.hotspot.agent/_the.sa.services
+ 	$(TOUCH) $@
+ 
++# if $(AGENT_DIR) exist, import SA
++# AGENT_DIR do not exist for Itanium and zero 
++ifdef $(AGENT_DIR)
+ SA_TARGETS += $(JDK_OUTPUTDIR)/modules/jdk.hotspot.agent/_the.sa.jar.unpacked
++endif
+ 
+ ################################################################################
+ 
+Index: openjdk-jdk9-b36/jdk/make/gensrc/Gensrc-jdk.jdi.gmk
+===================================================================
+--- openjdk-jdk9-b36.orig/jdk/make/gensrc/Gensrc-jdk.jdi.gmk	2014-11-06 14:26:22.504129479 +0100
++++ openjdk-jdk9-b36/jdk/make/gensrc/Gensrc-jdk.jdi.gmk	2014-11-07 15:36:49.841494701 +0100
+@@ -78,8 +78,12 @@
+     $(SUPPORT_OUTPUTDIR)/gensrc/jdk.jdi/META-INF/services/com.sun.jdi.connect.Connector
+ 	$(install-file)
+ 
++# if $(AGENT_DIR) exist, generate SA
++# AGENT_DIR do not exist for Itanium and zero 
++ifdef $(AGENT_DIR)
+ GENSRC_JDK_JDI += $(SUPPORT_OUTPUTDIR)/gensrc/jdk.jdi/META-INF/services/com.sun.jdi.connect.Connector \
+     $(JDK_OUTPUTDIR)/modules/jdk.hotspot.agent/META-INF/services/com.sun.jdi.connect.Connector
++endif
+ 
+ ################################################################################
+ 
