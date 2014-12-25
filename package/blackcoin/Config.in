@@ -1,0 +1,12 @@
+config BR2_PACKAGE_BLACKCOIN
+	bool "blackcoin"
+	depends on BR2_PACKAGE_QT || BR2_PACKAGE_QT5
+	select BR2_PACKAGE_BERKELEYDB
+	select BR2_PACKAGE_DBUS
+	select BR2_PACKAGE_MINIUPNP
+	select BR2_PACKAGE_OPENSSL
+	help
+	BlackCoin Currency of the future
+	A decentralized stable store of value that uses little energy and that is powered by the people who use it.
+	
+	http://blackcoin.co/

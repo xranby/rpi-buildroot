@@ -1,0 +1,13 @@
+config BR2_PACKAGE_MINIUPNP
+	bool "miniupnp"
+	depends on BR2_LARGEFILE
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	help
+	  Compiled on a x86 PC, the miniupnp client library has less than 50KB code size.
+	  The miniUPnP daemon is much smaller than any other IGD daemon and is ideal for using on low memory device for this reason.
+	  It also uses only ONE process and no additional thread, does not use any system() or exec() call, and therefore keeps system resources usage very low. 
+
+	  http://miniupnp.free.fr/
+
+comment "libupnp needs a toolchain w/ largefile, threads"
+	depends on !(BR2_LARGEFILE && BR2_TOOLCHAIN_HAS_THREADS)
