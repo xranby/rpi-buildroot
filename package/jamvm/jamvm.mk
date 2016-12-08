@@ -4,18 +4,6 @@
 #
 ################################################################################
 
-<<<<<<< HEAD
-JAMVM_VERSION = 2.0.0
-JAMVM_SITE = http://downloads.sourceforge.net/project/jamvm/jamvm/JamVM%20$(JAMVM_VERSION)
-JAMVM_LICENSE = GPLv2+
-JAMVM_LICENSE_FILES = COPYING
-JAMVM_DEPENDENCIES = zlib classpath
-# For 0001-Use-fenv.h-when-available-instead-of-fpu_control.h.patch
-JAMVM_AUTORECONF = YES
-# int inlining seems to crash jamvm, don't build shared version of internal lib
-JAMVM_CONF_OPTS = \
-	--with-classpath-install-dir=/usr \
-=======
 # Upstream
 #JAMVM_VERSION = 2.0.0
 #JAMVM_SITE = http://downloads.sourceforge.net/project/jamvm/jamvm/JamVM%20$(JAMVM_VERSION)
@@ -30,7 +18,7 @@ JAMVM_LICENSE = GPLv2+
 JAMVM_LICENSE_FILES = COPYING
 JAMVM_DEPENDENCIES = zlib
 # int inlining seems to crash jamvm
-JAMVM_CONF_OPT = \
+JAMVM_CONF_OPTS = \
 	--disable-int-inlining \
 	--without-pic \
 	--with-java-runtime-library=openjdk9

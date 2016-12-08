@@ -13,16 +13,16 @@
 #OPENJDK_RELEASE = jdk8u20
 #OPENJDK_PROJECT = jdk8u
 
-OPENJDK_VERSION = jdk9-b36
-OPENJDK_RELEASE = m2
-OPENJDK_PROJECT = jigsaw
+OPENJDK_VERSION = tip
+OPENJDK_RELEASE = jdk9-arm3264
+OPENJDK_PROJECT = aarch32-port
 
 # TODO make conditional
 # --with-import-hotspot=$(STAGING_DIR)/hotspot \
 
-OPENJDK_CONF_OPT = \
-	--with-jvm-interpreter=cpp \
-	--with-jvm-variants=zero \
+OPENJDK_CONF_OPTS = \
+	--with-abi-profile=arm-hflt \
+	--with-jvm-variants=client \
 	--enable-openjdk-only \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
@@ -36,12 +36,12 @@ OPENJDK_CONF_OPT = \
         --enable-unlimited-crypto
 
 ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
-OPENJDK_CONF_OPT += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
+OPENJDK_CONF_OPTS += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
-OPENJDK_MAKE_OPT = all images profiles CONF=linux-arm-normal-zero-release
+OPENJDK_MAKE_OPTS = all images profiles
 
-OPENJDK_DEPENDENCIES = jamvm alsa-lib host-pkgconf
+OPENJDK_DEPENDENCIES = xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
 OPENJDK_LICENSE_FILES = COPYING
 
@@ -87,40 +87,40 @@ OPENJDK_PRE_DOWNLOAD_HOOKS += OPENJDK_DOWNLOAD_CMDS
 
 define OPENJDK_EXTRACT_CMDS
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-openjdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	mv $(@D)/$(OPENJDK_RELEASE)-$(OPENJDK_VERSION)/* $(@D)
+	mv $(@D)/$(OPENJDK_RELEASE)-*/* $(@D)
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-hotspot-$(OPENJDK_VERSION).tar.gz -C $(@D)
-        ln -s $(@D)/hotspot-$(OPENJDK_VERSION) $(@D)/hotspot
+        ln -s $(@D)/hotspot-* $(@D)/hotspot
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-corba-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/corba-$(OPENJDK_VERSION) $(@D)/corba
+	ln -s $(@D)/corba-* $(@D)/corba
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxp-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/jaxp-$(OPENJDK_VERSION) $(@D)/jaxp
+	ln -s $(@D)/jaxp-* $(@D)/jaxp
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jaxws-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/jaxws-$(OPENJDK_VERSION) $(@D)/jaxws
+	ln -s $(@D)/jaxws-* $(@D)/jaxws
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-jdk-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/jdk-$(OPENJDK_VERSION) $(@D)/jdk
+	ln -s $(@D)/jdk-* $(@D)/jdk
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-langtools-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/langtools-$(OPENJDK_VERSION) $(@D)/langtools
+	ln -s $(@D)/langtools-* $(@D)/langtools
 	tar zxvf $(BR2_DL_DIR)/openjdk-$(OPENJDK_RELEASE)-nashorn-$(OPENJDK_VERSION).tar.gz -C $(@D)
-	ln -s $(@D)/nashorn-$(OPENJDK_VERSION) $(@D)/nashorn
+	ln -s $(@D)/nashorn-* $(@D)/nashorn
 endef
 
 endif 
 
 define OPENJDK_CONFIGURE_CMDS
-	mkdir -p $(STAGING_DIR)/hotspot/lib
-	touch $(STAGING_DIR)/hotspot/lib/sa-jdi.jar
-	mkdir -p $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
-	cp $(TARGET_DIR)/usr/lib/libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
-	ln -sf server $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client
-	touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
-	ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
+	#mkdir -p $(STAGING_DIR)/hotspot/lib
+	#touch $(STAGING_DIR)/hotspot/lib/sa-jdi.jar
+	#mkdir -p $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
+	#cp $(TARGET_DIR)/usr/lib/libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
+	#ln -sf server $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client
+	#touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
+	#ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
 	chmod +x $(@D)/configure
-	cd $(@D); ./configure $(OPENJDK_CONF_OPT) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+	cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
 endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPT)
+	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=ld CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_LD) -C $(@D) $(OPENJDK_MAKE_OPTS)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
