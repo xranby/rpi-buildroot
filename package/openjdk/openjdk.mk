@@ -41,9 +41,9 @@ ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPTS += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
-#OPENJDK_MAKE_OPTS = images
+OPENJDK_MAKE_OPTS = images
 
-OPENJDK_DEPENDENCIES = xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
+OPENJDK_DEPENDENCIES = freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
 OPENJDK_LICENSE_FILES = COPYING
 
@@ -109,20 +109,18 @@ endef
 endif 
 
 define OPENJDK_CONFIGURE_CMDS
-	#mkdir -p $(STAGING_DIR)/hotspot/lib
-	#touch $(STAGING_DIR)/hotspot/lib/sa-jdi.jar
-	#mkdir -p $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
-	#cp $(TARGET_DIR)/usr/lib/libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server
-	#ln -sf server $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client
-	#touch $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/server/Xusage.txt
-	#ln -sf libjvm.so $(STAGING_DIR)/hotspot/jre/lib/$(OPENJDK_HOTSPOT_ARCH)/client/libjsig.so
 	chmod +x $(@D)/configure
-	cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+	#cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+        #cd $(@D); ./configure $(OPENJDK_CONF_OPTS) LD=$(TARGET_CC) CPP=$(TARGET_CPP) CXX=$(TARGET_CXX)
+        cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
 endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-        make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPTS)
+        #make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPTS)
+        #cd $(@D); make $(OPENJDK_MAKE_OPTS) LD=$(TARGET_CC) CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) BUILD_CC=gcc BUILD_LD=gcc
+        cd $(@D); make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+        cd $(@D); make $(OPENJDK_MAKE_OPTS)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
