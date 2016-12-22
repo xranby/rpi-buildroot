@@ -13,16 +13,18 @@
 #OPENJDK_RELEASE = jdk8u20
 #OPENJDK_PROJECT = jdk8u
 
-OPENJDK_VERSION = tip
-OPENJDK_RELEASE = jdk9-arm3264
-OPENJDK_PROJECT = aarch32-port
+OPENJDK_VERSION = jdk-9+150 
+OPENJDK_RELEASE = jdk9
+OPENJDK_PROJECT = jdk9
 
 # TODO make conditional
 # --with-import-hotspot=$(STAGING_DIR)/hotspot \
 
 OPENJDK_CONF_OPTS = \
-	--with-abi-profile=arm-hflt \
-	--with-jvm-variants=client \
+        --disable-warnings-as-errors \
+        --with-jdk-variant=normal --with-abi-profile=arm-vfp-hflt --with-conf-name=hardfp \
+	--with-jvm-variants=server \
+	--with-debug-level=release \
 	--enable-openjdk-only \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
@@ -31,7 +33,7 @@ OPENJDK_CONF_OPTS = \
         --openjdk-target=$(GNU_TARGET_NAME) \
         --with-x=$(STAGING_DIR)/usr/include \
 	--with-sys-root=$(STAGING_DIR) \
-	--with-tools-dir=$(HOST_DIR) \
+	--with-tools-dir=$(HOST_DIR)/bin \
 	--disable-freetype-bundling \
         --enable-unlimited-crypto
 
@@ -39,7 +41,7 @@ ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPTS += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
-OPENJDK_MAKE_OPTS = all images profiles
+#OPENJDK_MAKE_OPTS = images
 
 OPENJDK_DEPENDENCIES = xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
@@ -120,7 +122,7 @@ endef
 
 define OPENJDK_BUILD_CMDS
 	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-	make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=ld CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_LD) -C $(@D) $(OPENJDK_MAKE_OPTS)
+        make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPTS)
 endef
 
 define OPENJDK_INSTALL_TARGET_CMDS
