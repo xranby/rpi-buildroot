@@ -8,40 +8,34 @@
 ################################################################################
 
 #Version is the same as OpenJDK HG tag
-#OPENJDK_VERSION = jdk8u20-b26
-#Release is the same as 
-#OPENJDK_RELEASE = jdk8u20
-#OPENJDK_PROJECT = jdk8u
 
 OPENJDK_VERSION = jdk-9+150 
 OPENJDK_RELEASE = jdk9
 OPENJDK_PROJECT = jdk9
 
-# TODO make conditional
-# --with-import-hotspot=$(STAGING_DIR)/hotspot \
-
 OPENJDK_CONF_OPTS = \
-        --disable-warnings-as-errors \
-        --with-jdk-variant=normal --with-abi-profile=arm-vfp-hflt --with-conf-name=hardfp \
+	--with-jdk-variant=normal \
+	--with-abi-profile=arm-vfp-hflt \
+	--with-conf-name=hardfp \
 	--with-jvm-variants=server \
 	--with-debug-level=release \
 	--enable-openjdk-only \
+	--enable-unlimited-crypto \
+	--openjdk-target=$(GNU_TARGET_NAME) \
 	--with-freetype-include=$(STAGING_DIR)/usr/include/freetype2 \
 	--with-freetype-lib=$(STAGING_DIR)/usr/lib \
-        --with-freetype=$(STAGING_DIR)/usr/ \
-        --with-debug-level=release \
-        --openjdk-target=$(GNU_TARGET_NAME) \
-        --with-x=$(STAGING_DIR)/usr/include \
+	--with-freetype=$(STAGING_DIR)/usr/ \
+	--disable-freetype-bundling \
+	--with-x=$(STAGING_DIR)/usr/include \
 	--with-sys-root=$(STAGING_DIR) \
 	--with-tools-dir=$(HOST_DIR)/bin \
-	--disable-freetype-bundling \
-        --enable-unlimited-crypto
+	--disable-warnings-as-errors
 
 ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPTS += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
-OPENJDK_MAKE_OPTS = images
+OPENJDK_MAKE_OPTS = images profiles
 
 OPENJDK_DEPENDENCIES = freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
@@ -110,16 +104,14 @@ endif
 
 define OPENJDK_CONFIGURE_CMDS
 	chmod +x $(@D)/configure
-	#cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
-        #cd $(@D); ./configure $(OPENJDK_CONF_OPTS) LD=$(TARGET_CC) CPP=$(TARGET_CPP) CXX=$(TARGET_CXX)
         cd $(@D); ./configure $(OPENJDK_CONF_OPTS) OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) CPP_FLAGS=-lstdc++ CXX_FLAGS=-lstdc++ CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
 endef
 
 define OPENJDK_BUILD_CMDS
-	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using -gcc instead
-        #make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC) -C $(@D) $(OPENJDK_MAKE_OPTS)
-        #cd $(@D); make $(OPENJDK_MAKE_OPTS) LD=$(TARGET_CC) CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) BUILD_CC=gcc BUILD_LD=gcc
+	# LD is using CC because busybox -ld do not support -Xlinker -z hence linking using gcc instead
         cd $(@D); make OBJCOPY=$(TARGET_OBJCOPY) STRIP=$(TARGET_STRIP) BUILD_CC=gcc BUILD_LD=gcc CPP=$(TARGET_CPP) CXX=$(TARGET_CXX) CC=$(TARGET_CC) LD=$(TARGET_CC)
+        # make OPENJDK_MAKE_OPTS (images and profiles) fail unless a regular make has been built once
+        # therefore we run make twice
         cd $(@D); make $(OPENJDK_MAKE_OPTS)
 endef
 
