@@ -2,60 +2,27 @@
 #
 # openjdk
 #
-# Please be aware that, when cross-compiling, the OpenJDK configure script will
-# generally use 'target' where autoconf traditionally uses 'host'
-#
 ################################################################################
-
-#Version is the same as OpenJDK HG tag
+#
+# OPENJDK_VERSION is the same as OpenJDK HG tag
+# OPENJDK_RELEASE is the suburl after the top OpenJDK project
+# http://hg.openjdk.java.net/jdk9/jdk9
+#                                 ^^^^
+# OPENJDK_PROJECT is the top OpenJDK project
+# http://hg.openjdk.java.net/jdk9
+#                            ^^^^
+################################################################################
 
 OPENJDK_VERSION = jdk-9+150 
 OPENJDK_RELEASE = jdk9
 OPENJDK_PROJECT = jdk9
 
-# --with-cpu-port         specify sources to use for Hotspot 64-bit ARM port
-#                          (arm64,aarch64) [aarch64]
-# There is an additional ARM specific option, --with-cpu-port, which can be used to specify the new aarch64 build --with-cpu-port=arm64 or the existing aarch64 build --with-cpu-port=aarch64.
-# If no option is specified the build defaults to the existing aarch64 build. 
-
-# --with-abi-profile      specify ABI profile for ARM builds
-#                          (arm-vfp-sflt,arm-vfp-hflt,arm-sflt,
-#                          armv5-vfp-sflt,armv6-vfp-hflt,arm64,aarch64)
-# arm-vfp-sflt then
-# ARM_FLOAT_TYPE=vfp-sflt
-# ARM_ARCH_TYPE_FLAGS='-march=armv7-a -mthumb'
-#
-# arm-vfp-hflt then
-# ARM_FLOAT_TYPE=vfp-hflt
-# ARM_ARCH_TYPE_FLAGS='-march=armv7-a -mthumb'
-#
-# arm-sflt then
-# ARM_FLOAT_TYPE=sflt
-# ARM_ARCH_TYPE_FLAGS='-march=armv5t -marm'
-#
-# armv5-vfp-sflt then
-# ARM_FLOAT_TYPE=vfp-sflt
-# ARM_ARCH_TYPE_FLAGS='-march=armv5t -marm'
-#
-# armv6-vfp-hflt then
-# ARM_FLOAT_TYPE=vfp-hflt
-# ARM_ARCH_TYPE_FLAGS='-march=armv6 -marm'
-#
-
-# VALID_JVM_FEATURES="compiler1 compiler2 zero shark minimal dtrace jvmti jvmci \
-#    graal fprof vm-structs jni-check services management all-gcs nmt cds \
-#    static-build link-time-opt aot"
-
-# configure: error: AOT is currently only supported on Linux-x86_64. Remove --enable-aot.
-# --enable-aot=yes \ --with-jvm-features=aot \
-
-# --with-native-debug-symbols=[none|internal|external|zipped]
-
 OPENJDK_CONF_OPTS = \
+	--with-update-version=$(OPENJDK_VERSION) \
+	--with-build-number=$(OPENJDK_RELEASE) \
+	--with-milestone=$(BR2_TOOLCHAIN_BUILDROOT_VENDOR) \
 	--with-jdk-variant=normal \
-	--with-abi-profile=armv6-vfp-hflt \
-	--with-conf-name=hardfp \
-	--with-jvm-variants=minimal \
+	--with-conf-name=buildroot \
 	--with-debug-level=release \
 	--with-native-debug-symbols=none \
 	--enable-openjdk-only \
@@ -70,13 +37,67 @@ OPENJDK_CONF_OPTS = \
 	--with-tools-dir=$(HOST_DIR)/bin \
 	--disable-warnings-as-errors
 
+ifeq ($(BR2_OPENJDK_JVM_SERVER),y)
+  OPENJDK_CONF_OPTS += --with-jvm-variants=server
+endif
+ifeq ($(BR2_OPENJDK_JVM_MINIMAL),y)
+  OPENJDK_CONF_OPTS += --with-jvm-variants=minimal
+endif
+
+# --with-abi-profile      specify ABI profile for ARM builds
+#                          (arm-vfp-sflt,arm-vfp-hflt,arm-sflt,
+#                          armv5-vfp-sflt,armv6-vfp-hflt,arm64,aarch64)
+
+ifeq ($(BR2_arm),y)
+  ifeq ($(BR2_ARM_EABIHF),y)
+    ifeq ($(BR2_ARM_CPU_ARMV7A),y)
+      OPENJDK_CONF_OPTS += --with-abi-profile=arm-vfp-hflt     
+    endif
+    ifeq ($(BR2_ARM_CPU_ARMV7A),n)
+      OPENJDK_CONF_OPTS += --with-abi-profile=armv6-vfp-hflt
+    endif
+  endif
+
+  ifeq ($(BR2_ARM_EABI),y)
+    ifeq ($(BR2_ARM_SOFT_FLOAT),y)
+      OPENJDK_CONF_OPTS += --with-abi-profile=arm-sflt
+    endif
+    ifeq ($(BR2_ARM_SOFT_FLOAT),n)
+      ifeq ($(BR2_ARM_CPU_ARMV7A),y)
+        OPENJDK_CONF_OPTS += --with-abi-profile=arm-vfp-sflt
+      endif
+      ifeq ($(BR2_ARM_CPU_ARMV7A),n)
+        OPENJDK_CONF_OPTS += --with-abi-profile=armv5-vfp-sflt
+      endif
+    endif
+  endif
+
+endif
+
+# --with-cpu-port         specify sources to use for Hotspot 64-bit ARM port
+#                          (arm64,aarch64) [aarch64]
+# There is an additional ARM specific option, --with-cpu-port, which can be used to specify the new aarch64 build --with-cpu-port=arm64 or the existing aarch64 build --with-cpu-port=aarch64.
+# If no option is specified the build defaults to the existing aarch64 build.
+
+ifeq ($(BR2_aarch64),y)
+  OPENJDK_CONF_OPTS += --with-cpu-port=aarch64 \
+                       --with-abi-profile=aarch64 
+endif
+
 ifeq ($(BR2_OPENJDK_CUSTOM_BOOT_JDK),y)
 OPENJDK_CONF_OPTS += --with-boot-jdk=$(call qstrip,$(BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH))
 endif
 
 OPENJDK_MAKE_OPTS = images profiles
 
-OPENJDK_DEPENDENCIES = elfutils freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
+OPENJDK_DEPENDENCIES = freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
+
+ifeq ($(BR2_OPENJDK_AOT_COMPILER),y)
+OPENJDK_DEPENDENCIES += elfutils
+OPENJDK_CONF_OPTS += --enable-aot=yes \
+                     --with-jvm-features=aot
+endif
+
 OPENJDK_LICENSE = GPLv2+ with exception
 OPENJDK_LICENSE_FILES = COPYING
 

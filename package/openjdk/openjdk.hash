@@ -1,0 +1,9 @@
+# Locally computed:
+sha256 217b875ad6fc56fdb3f5c3222e1e1eacf2609956a4eae35cbeeda70e99cc2d02  openjdk-jdk9-corba-jdk-9+150.tar.gz
+sha256 b7c7afd61c3a85dbd1811cdf27c82a9b5336e942b4ec22e14df93ffba7a632da  openjdk-jdk9-hotspot-jdk-9+150.tar.gz
+sha256 fda85cccb6299e7645d77f3308562afc7afe7c1964f1687420d64e9754fb9b47  openjdk-jdk9-jaxp-jdk-9+150.tar.gz
+sha256 fe20748ea3f8e4672626c77af3636e64b2ef6477eb0a34559f0360e0f8f5cf26  openjdk-jdk9-jaxws-jdk-9+150.tar.gz
+sha256 7b4dd10489c4a57bcedb54c991c63ffe5aa5ef69bd6e3867b0c19a2bc895bf59  openjdk-jdk9-jdk-jdk-9+150.tar.gz
+sha256 b7819e52b054e1e451883f37b8973ddc5b2259e9d052fe79b2913ccbd78ae3c3  openjdk-jdk9-langtools-jdk-9+150.tar.gz
+sha256 3999e318f12e74e91f54741987cb193772b2a6d1e0df49800c3e24af5bedaa4a  openjdk-jdk9-nashorn-jdk-9+150.tar.gz
+sha256 6952d43b0c78d8001688af5a3e356c092b967462f0d5e10705fcf49302b961f6  openjdk-jdk9-openjdk-jdk-9+150.tar.gz

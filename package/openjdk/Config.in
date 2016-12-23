@@ -11,13 +11,62 @@ config BR2_PACKAGE_OPENJDK
         select BR2_PACKAGE_ALSA_LIB
         select BR2_PACKAGE_CUPS
 	select BR2_PACKAGE_FREETYPE
-	select BR2_PACKAGE_ELFUTILS
 	help
 	  OpenJDK JRE runtime.
 
 	  http://openjdk.java.net/
 
 if BR2_PACKAGE_OPENJDK
+
+choice
+	prompt "OpenJDK image"
+
+config BR2_OPENJDK_IMAGE_ALL
+        bool "all"
+        help
+          Install all images produced by the build
+          Large footprint!
+	
+config BR2_OPENJDK_IMAGE_JDK
+        bool "jdk"
+        help
+          A full JDK with javac compiler
+
+config BR2_OPENJDK_IMAGE_JRE
+        bool "jre"
+        help
+          A full runtime JRE
+
+config BR2_OPENJDK_IMAGE_JRE_COMPACT3
+        bool "jre compact3"
+        help
+          A reduced JRE
+
+config BR2_OPENJDK_IMAGE_JRE_COMPACT2
+        bool "jre compact2"
+        help
+          A reduced JRE
+
+config BR2_OPENJDK_IMAGE_JRE_COMPACT1
+        bool "jre compact1"
+        help
+          A reduced JRE
+
+endchoice
+
+choice
+        prompt "OpenJDK JVM"
+
+config BR2_OPENJDK_JVM_SERVER
+        bool "server"
+        help
+          A high performance server C2 JIT
+
+config BR2_OPENJDK_JVM_MINIMAL 
+        bool "minimal"
+        help
+          A fast startup client C1 JIT optimized for size
+endchoice
 
 config BR2_OPENJDK_CUSTOM_LOCAL
         bool "OpenJDK Local sourcecode directory"
@@ -39,5 +88,14 @@ config BR2_OPENJDK_CUSTOM_BOOT_JDK_PATH
         depends on BR2_OPENJDK_CUSTOM_BOOT_JDK
         help
           Path to the local directory with the OpenJDK source code.
-
+config BR2_OPENJDK_AOT_COMPILER
+        bool "OpenJDK JEP 295: Ahead-of-Time Compilation"
+        depends on BR2_x86_64
+        depends on BR2_BINFMT_ELF
+        select BR2_PACKAGE_ELFUTILS
+        help
+          The JDK 9 version only supports Linux/x64, where the shared library format is ELF.
+          Build a compiler that allow compilation of
+          Java classes to native code prior to launching the virtual machine.
+          http://openjdk.java.net/jeps/295
 endif
