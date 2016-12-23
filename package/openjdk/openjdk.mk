@@ -13,12 +13,51 @@ OPENJDK_VERSION = jdk-9+150
 OPENJDK_RELEASE = jdk9
 OPENJDK_PROJECT = jdk9
 
+# --with-cpu-port         specify sources to use for Hotspot 64-bit ARM port
+#                          (arm64,aarch64) [aarch64]
+# There is an additional ARM specific option, --with-cpu-port, which can be used to specify the new aarch64 build --with-cpu-port=arm64 or the existing aarch64 build --with-cpu-port=aarch64.
+# If no option is specified the build defaults to the existing aarch64 build. 
+
+# --with-abi-profile      specify ABI profile for ARM builds
+#                          (arm-vfp-sflt,arm-vfp-hflt,arm-sflt,
+#                          armv5-vfp-sflt,armv6-vfp-hflt,arm64,aarch64)
+# arm-vfp-sflt then
+# ARM_FLOAT_TYPE=vfp-sflt
+# ARM_ARCH_TYPE_FLAGS='-march=armv7-a -mthumb'
+#
+# arm-vfp-hflt then
+# ARM_FLOAT_TYPE=vfp-hflt
+# ARM_ARCH_TYPE_FLAGS='-march=armv7-a -mthumb'
+#
+# arm-sflt then
+# ARM_FLOAT_TYPE=sflt
+# ARM_ARCH_TYPE_FLAGS='-march=armv5t -marm'
+#
+# armv5-vfp-sflt then
+# ARM_FLOAT_TYPE=vfp-sflt
+# ARM_ARCH_TYPE_FLAGS='-march=armv5t -marm'
+#
+# armv6-vfp-hflt then
+# ARM_FLOAT_TYPE=vfp-hflt
+# ARM_ARCH_TYPE_FLAGS='-march=armv6 -marm'
+#
+
+# VALID_JVM_FEATURES="compiler1 compiler2 zero shark minimal dtrace jvmti jvmci \
+#    graal fprof vm-structs jni-check services management all-gcs nmt cds \
+#    static-build link-time-opt aot"
+
+# configure: error: AOT is currently only supported on Linux-x86_64. Remove --enable-aot.
+# --enable-aot=yes \ --with-jvm-features=aot \
+
+# --with-native-debug-symbols=[none|internal|external|zipped]
+
 OPENJDK_CONF_OPTS = \
 	--with-jdk-variant=normal \
-	--with-abi-profile=arm-vfp-hflt \
+	--with-abi-profile=armv6-vfp-hflt \
 	--with-conf-name=hardfp \
-	--with-jvm-variants=server \
+	--with-jvm-variants=minimal \
 	--with-debug-level=release \
+	--with-native-debug-symbols=none \
 	--enable-openjdk-only \
 	--enable-unlimited-crypto \
 	--openjdk-target=$(GNU_TARGET_NAME) \
@@ -37,7 +76,7 @@ endif
 
 OPENJDK_MAKE_OPTS = images profiles
 
-OPENJDK_DEPENDENCIES = freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
+OPENJDK_DEPENDENCIES = elfutils freetype cups xlib_libX11 xlib_libXext xlib_libXtst xlib_libXrender xlib_libXt alsa-lib host-pkgconf
 OPENJDK_LICENSE = GPLv2+ with exception
 OPENJDK_LICENSE_FILES = COPYING
 
