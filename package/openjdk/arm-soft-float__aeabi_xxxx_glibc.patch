@@ -1,0 +1,106 @@
+Index: openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/assembler_arm_32.hpp
+===================================================================
+--- openjdk-jdk-9+150.orig/hotspot/src/cpu/arm/vm/assembler_arm_32.hpp
++++ openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/assembler_arm_32.hpp
+@@ -1231,13 +1231,6 @@ extern int  __aeabi_dcmplt(double, doubl
+ extern int  __aeabi_dcmple(double, double);
+ extern int  __aeabi_dcmpge(double, double);
+ extern int  __aeabi_dcmpgt(double, double);
+-
+-// Imported code from glibc soft-fp bundle for
+-// calculation accuracy improvement. See CR 6757269.
+-extern double __aeabi_fadd_glibc(float, float);
+-extern double __aeabi_fsub_glibc(float, float);
+-extern double __aeabi_dadd_glibc(double, double);
+-extern double __aeabi_dsub_glibc(double, double);
+ };
+ #endif // __SOFTFP__
+ 
+Index: openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/c1_LIRGenerator_arm.cpp
+===================================================================
+--- openjdk-jdk-9+150.orig/hotspot/src/cpu/arm/vm/c1_LIRGenerator_arm.cpp
++++ openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/c1_LIRGenerator_arm.cpp
+@@ -699,28 +699,26 @@ void LIRGenerator::do_ArithmeticOp_FPU(A
+ #ifdef __SOFTFP__
+     // Call function compiled with -msoft-float.
+ 
+-      // __aeabi_XXXX_glibc: Imported code from glibc soft-fp bundle for calculation accuracy improvement. See CR 6757269.
+-
+     case Bytecodes::_fadd:
+-      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fadd_glibc);
++      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fadd);
+       break;
+     case Bytecodes::_fmul:
+       runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fmul);
+       break;
+     case Bytecodes::_fsub:
+-      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fsub_glibc);
++      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fsub);
+       break;
+     case Bytecodes::_fdiv:
+       runtime_func = CAST_FROM_FN_PTR(address, __aeabi_fdiv);
+       break;
+     case Bytecodes::_dadd:
+-      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_dadd_glibc);
++      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_dadd);
+       break;
+     case Bytecodes::_dmul:
+       runtime_func = CAST_FROM_FN_PTR(address, __aeabi_dmul);
+       break;
+     case Bytecodes::_dsub:
+-      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_dsub_glibc);
++      runtime_func = CAST_FROM_FN_PTR(address, __aeabi_dsub);
+       break;
+     case Bytecodes::_ddiv:
+       runtime_func = CAST_FROM_FN_PTR(address, __aeabi_ddiv);
+Index: openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/c1_Runtime1_arm.cpp
+===================================================================
+--- openjdk-jdk-9+150.orig/hotspot/src/cpu/arm/vm/c1_Runtime1_arm.cpp
++++ openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/c1_Runtime1_arm.cpp
+@@ -1171,15 +1171,14 @@ const char *Runtime1::pd_name_for_addres
+ #define FUNCTION_CASE(a, f) \
+   if ((intptr_t)a == CAST_FROM_FN_PTR(intptr_t, f))  return #f
+ 
+-  FUNCTION_CASE(entry, __aeabi_fadd_glibc);
++  FUNCTION_CASE(entry, __aeabi_fadd);
+   FUNCTION_CASE(entry, __aeabi_fmul);
+-  FUNCTION_CASE(entry, __aeabi_fsub_glibc);
++  FUNCTION_CASE(entry, __aeabi_fsub);
+   FUNCTION_CASE(entry, __aeabi_fdiv);
+ 
+-  // __aeabi_XXXX_glibc: Imported code from glibc soft-fp bundle for calculation accuracy improvement. See CR 6757269.
+-  FUNCTION_CASE(entry, __aeabi_dadd_glibc);
++  FUNCTION_CASE(entry, __aeabi_dadd);
+   FUNCTION_CASE(entry, __aeabi_dmul);
+-  FUNCTION_CASE(entry, __aeabi_dsub_glibc);
++  FUNCTION_CASE(entry, __aeabi_dsub);
+   FUNCTION_CASE(entry, __aeabi_ddiv);
+ 
+   FUNCTION_CASE(entry, __aeabi_f2d);
+Index: openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/templateTable_arm.cpp
+===================================================================
+--- openjdk-jdk-9+150.orig/hotspot/src/cpu/arm/vm/templateTable_arm.cpp
++++ openjdk-jdk-9+150/hotspot/src/cpu/arm/vm/templateTable_arm.cpp
+@@ -1712,8 +1712,8 @@ void TemplateTable::fop2(Operation op) {
+   __ mov(R1, R0_tos);
+   __ pop_i(R0);
+   switch (op) {
+-    case add: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fadd_glibc), R0, R1); break;
+-    case sub: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fsub_glibc), R0, R1); break;
++    case add: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fadd), R0, R1); break;
++    case sub: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fsub), R0, R1); break;
+     case mul: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fmul), R0, R1); break;
+     case div: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_fdiv), R0, R1); break;
+     case rem: __ call_VM_leaf(CAST_FROM_FN_PTR(address, SharedRuntime::frem), R0, R1); break;
+@@ -1754,9 +1754,8 @@ void TemplateTable::dop2(Operation op) {
+   __ mov(R3, R1_tos_hi);
+   __ pop_l(R0, R1);
+   switch (op) {
+-    // __aeabi_XXXX_glibc: Imported code from glibc soft-fp bundle for calculation accuracy improvement. See CR 6757269.
+-    case add: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_dadd_glibc), R0, R1, R2, R3); break;
+-    case sub: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_dsub_glibc), R0, R1, R2, R3); break;
++    case add: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_dadd), R0, R1, R2, R3); break;
++    case sub: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_dsub), R0, R1, R2, R3); break;
+     case mul: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_dmul), R0, R1, R2, R3); break;
+     case div: __ call_VM_leaf(CAST_FROM_FN_PTR(address, __aeabi_ddiv), R0, R1, R2, R3); break;
+     case rem: __ call_VM_leaf(CAST_FROM_FN_PTR(address, SharedRuntime::drem), R0, R1, R2, R3); break;
