@@ -13,7 +13,7 @@
 #                            ^^^^
 ################################################################################
 
-OPENJDK_VERSION = jdk-9+150 
+OPENJDK_VERSION = jdk-9+155
 OPENJDK_RELEASE = jdk9
 OPENJDK_PROJECT = jdk9
 
@@ -22,7 +22,7 @@ OPENJDK_CONF_OPTS = \
 	--with-build-number=$(OPENJDK_RELEASE) \
 	--with-milestone=$(BR2_TOOLCHAIN_BUILDROOT_VENDOR) \
 	--with-jdk-variant=normal \
-	--with-conf-name=buildroot \
+	--with-conf-name=JogAmp_JiGong \
 	--with-debug-level=release \
 	--with-native-debug-symbols=none \
 	--enable-openjdk-only \
